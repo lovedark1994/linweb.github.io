@@ -1,0 +1,10 @@
+{
+	"name": "破壞網頁",
+	"short_name": "破壞網頁",
+	"description": "",
+	"start_url": "index.html",
+	"display": "fullscreen",
+	"orientation": "portrait",
+	"background_color": "#ffffff",
+	"icons": []
+}
