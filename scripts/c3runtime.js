@@ -4197,6 +4197,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Acts.SetEffectParam,
 		C3.Behaviors.Tween.Exps.Value,
 		C3.Plugins.System.Acts.SetLayerOpacity,
+		C3.Plugins.Text.Acts.ToggleBoolInstanceVar,
+		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
 		C3.Plugins.System.Exps.rgb,
 		C3.Behaviors.Fade.Acts.StartFade
@@ -4204,6 +4206,7 @@ self.C3_GetObjectRefTable = function () {
 };
 self.C3_JsPropNameTable = [
 	{Browser: 0},
+	{狀態: 0},
 	{按鈕: 0},
 	{Touch: 0},
 	{亂碼: 0},
@@ -4211,7 +4214,6 @@ self.C3_JsPropNameTable = [
 	{Sprite: 0},
 	{補間動畫: 0},
 	{Sprite2: 0},
-	{狀態: 0},
 	{動物: 0},
 	{Array: 0},
 	{次數: 0},
@@ -4397,7 +4399,6 @@ self.C3_ExpressionFuncs = [
 			return () => n0.ExpInstVar();
 		},
 		() => "小微 歡迎你回來\n若需要開啟機密文件\n輸入密碼",
-		() => "小微 歡迎你回來\n若需要開啟機密文件\n請輸入密碼",
 		() => 20,
 		() => "若每段感情都終將有結束的一天.....\n那不懂得珍惜的我....\n又有什麼資格接受新的開始....\n.....\n.....\n對不起.....\n.....\n.....\n.....\n.....\n.....\n5...\n4...\n3...\n2...\n1...\n正在導回LINE....",
 		() => 30,
@@ -4412,6 +4413,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpBehavior("不透");
 		},
+		() => "小微 歡迎你回來\n若需要開啟機密文件\n請輸入密碼",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
