@@ -3682,34 +3682,6 @@ err)}}};
 
 {
 self["C3_Shaders"] = {};
-self["C3_Shaders"]["radialpixellate"] = {
-	glsl: "#ifdef GL_FRAGMENT_PRECISION_HIGH\n#define highmedp highp\n#else\n#define highmedp mediump\n#endif\nvarying mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nuniform mediump vec2 pixelSize;\nuniform mediump float tilesize;\nvoid main(void)\n{\nmediump vec2 srcSize = srcEnd - srcStart;\nmediump vec2 tex = ((vTex - srcStart) / srcSize);\nhighmedp vec2 normCoord = 2.0 * tex - 1.0;\nhighmedp float r = length(normCoord);\nhighmedp float phi = atan(normCoord.y, normCoord.x);\nr = r - mod(r, pixelSize.x * tilesize / srcSize.x);\nphi = phi - mod(phi, pixelSize.y * tilesize / srcSize.y);\nnormCoord.x = r * cos(phi);\nnormCoord.y = r * sin(phi);\nnormCoord = normCoord / 2.0 + 0.5;\nnormCoord = clamp(normCoord, 0.0, 1.0);\t\t\t// ensure no sampling outside source rect\nnormCoord = (normCoord * srcSize) + srcStart;\t// convert back relative to source rect\ngl_FragColor = texture2D(samplerFront, normCoord);\n}",
-	glslWebGL2: "#version 300 es\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n#define highmedp highp\n#else\n#define highmedp mediump\n#endif\nin mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nout lowp vec4 outColor;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nuniform mediump vec2 pixelSize;\nuniform mediump float tilesize;\nvoid main(void)\n{\nmediump vec2 srcSize = srcEnd - srcStart;\nmediump vec2 tex = ((vTex - srcStart) / srcSize);\nhighmedp vec2 normCoord = 2.0 * tex - 1.0;\nhighmedp float r = length(normCoord);\nhighmedp float phi = atan(normCoord.y, normCoord.x);\nr = r - mod(r, pixelSize.x * tilesize / srcSize.x);\nphi = phi - mod(phi, pixelSize.y * tilesize / srcSize.y);\nnormCoord.x = r * cos(phi);\nnormCoord.y = r * sin(phi);\nnormCoord = normCoord / 2.0 + 0.5;\nnormCoord = clamp(normCoord, 0.0, 1.0);\t\t\t// ensure no sampling outside source rect\nnormCoord = (normCoord * srcSize) + srcStart;\t// convert back relative to source rect\noutColor = textureGrad(samplerFront, normCoord, dFdx(vTex), dFdy(vTex));\n}",
-	wgsl: "%%SAMPLERFRONT_BINDING%% var samplerFront : sampler;\n%%TEXTUREFRONT_BINDING%% var textureFront : texture_2d<f32>;\nstruct ShaderParams {\ntilesize : f32\n};\n%%SHADERPARAMS_BINDING%% var<uniform> shaderParams : ShaderParams;\n%%C3PARAMS_STRUCT%%\n%%C3_UTILITY_FUNCTIONS%%\n%%FRAGMENTINPUT_STRUCT%%\n%%FRAGMENTOUTPUT_STRUCT%%\n@fragment\nfn main(input : FragmentInput) -> FragmentOutput\n{\nvar pixelSize : vec2<f32> = c3_getPixelSize(textureFront);\nvar srcSize : vec2<f32> = c3Params.srcEnd - c3Params.srcStart;\nvar tex = c3_srcToNorm(input.fragUV);\nvar normCoord : vec2<f32> = tex * 2.0 - 1.0;\nvar r : f32 = length(normCoord);\nvar phi : f32 = atan2(normCoord.y, normCoord.x);\nr = r - c3_mod(r, pixelSize.x * shaderParams.tilesize / srcSize.x);\nphi = phi - c3_mod(phi, pixelSize.y * shaderParams.tilesize / srcSize.y);\nnormCoord.x = r * cos(phi);\nnormCoord.y = r * sin(phi);\nnormCoord = normCoord / 2.0 + 0.5;\nnormCoord = c3_clamp2(normCoord, 0.0, 1.0);\t\t// ensure no sampling outside source rect\nnormCoord = c3_normToSrc(normCoord);\t\t\t// convert back relative to source rect\nvar output : FragmentOutput;\noutput.color = textureSampleGrad(textureFront, samplerFront, normCoord, dpdx(input.fragUV), dpdy(input.fragUV));\nreturn output;\n}",
-	blendsBackground: false,
-	usesDepth: false,
-	extendBoxHorizontal: 0,
-	extendBoxVertical: 0,
-	crossSampling: false,
-	mustPreDraw: false,
-	preservesOpaqueness: false,
-	animated: false,
-	parameters: [["tilesize",0,"float"]]
-};
-self["C3_Shaders"]["hexpixellate"] = {
-	glsl: "varying mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nprecision mediump float;\nuniform mediump vec2 pixelSize;\nuniform mediump float scale;\nvoid main()\n{\nvec2 texSize = 1.0 / pixelSize;\nvec2 tex = (vTex * texSize - vec2(0.5, 0.5)) / scale;\ntex.y /= 0.866025404;\ntex.x -= tex.y * 0.5;\nvec2 a;\nif (tex.x + tex.y - floor(tex.x) - floor(tex.y) < 1.0)\na = vec2(floor(tex.x), floor(tex.y));\nelse\na = vec2(ceil(tex.x), ceil(tex.y));\nvec2 b = vec2(ceil(tex.x), floor(tex.y));\nvec2 c = vec2(floor(tex.x), ceil(tex.y));\nvec3 tex2 = vec3(tex.x, tex.y, 1.0 - tex.x - tex.y);\nvec3 a2 = vec3(a.x, a.y, 1.0 - a.x - a.y);\nvec3 b2 = vec3(b.x, b.y, 1.0 - b.x - b.y);\nvec3 c2 = vec3(c.x, c.y, 1.0 - c.x - c.y);\nfloat alen = length(tex2 - a2);\nfloat blen = length(tex2 - b2);\nfloat clen = length(tex2 - c2);\nvec2 choice;\nif (alen < blen)\n{\nif (alen < clen)\nchoice = a;\nelse\nchoice = c;\n}\nelse\n{\nif (blen < clen)\nchoice = b;\nelse\nchoice = c;\n}\nchoice.x += choice.y * 0.5;\nchoice.y *= 0.866025404;\nchoice *= scale / texSize;\nchoice += vec2(0.5, 0.5) / texSize;\nchoice = clamp(choice, min(srcStart, srcEnd), max(srcStart, srcEnd));\ngl_FragColor = texture2D(samplerFront, choice);\n}",
-	glslWebGL2: "#version 300 es\nin mediump vec2 vTex;\nuniform lowp sampler2D samplerFront;\nout lowp vec4 outColor;\nuniform mediump vec2 srcStart;\nuniform mediump vec2 srcEnd;\nprecision mediump float;\nuniform mediump vec2 pixelSize;\nuniform mediump float scale;\nvoid main()\n{\nvec2 texSize = 1.0 / pixelSize;\nvec2 tex = (vTex * texSize - vec2(0.5, 0.5)) / scale;\ntex.y /= 0.866025404;\ntex.x -= tex.y * 0.5;\nvec2 a;\nif (tex.x + tex.y - floor(tex.x) - floor(tex.y) < 1.0)\na = vec2(floor(tex.x), floor(tex.y));\nelse\na = vec2(ceil(tex.x), ceil(tex.y));\nvec2 b = vec2(ceil(tex.x), floor(tex.y));\nvec2 c = vec2(floor(tex.x), ceil(tex.y));\nvec3 tex2 = vec3(tex.x, tex.y, 1.0 - tex.x - tex.y);\nvec3 a2 = vec3(a.x, a.y, 1.0 - a.x - a.y);\nvec3 b2 = vec3(b.x, b.y, 1.0 - b.x - b.y);\nvec3 c2 = vec3(c.x, c.y, 1.0 - c.x - c.y);\nfloat alen = length(tex2 - a2);\nfloat blen = length(tex2 - b2);\nfloat clen = length(tex2 - c2);\nvec2 choice;\nif (alen < blen)\n{\nif (alen < clen)\nchoice = a;\nelse\nchoice = c;\n}\nelse\n{\nif (blen < clen)\nchoice = b;\nelse\nchoice = c;\n}\nchoice.x += choice.y * 0.5;\nchoice.y *= 0.866025404;\nchoice *= scale / texSize;\nchoice += vec2(0.5, 0.5) / texSize;\nchoice = clamp(choice, min(srcStart, srcEnd), max(srcStart, srcEnd));\noutColor = textureGrad(samplerFront, choice, dFdx(vTex), dFdy(vTex));\n}",
-	wgsl: "%%SAMPLERFRONT_BINDING%% var samplerFront : sampler;\n%%TEXTUREFRONT_BINDING%% var textureFront : texture_2d<f32>;\nstruct ShaderParams {\nscale : f32\n};\n%%SHADERPARAMS_BINDING%% var<uniform> shaderParams : ShaderParams;\n%%C3PARAMS_STRUCT%%\n%%FRAGMENTINPUT_STRUCT%%\n%%FRAGMENTOUTPUT_STRUCT%%\n@fragment\nfn main(input : FragmentInput) -> FragmentOutput\n{\nvar texSize : vec2<f32> = vec2<f32>(textureDimensions(textureFront));\nvar tex : vec2<f32> = (input.fragUV * texSize - 0.5) / shaderParams.scale;\ntex.y = tex.y / 0.866025404;\ntex.x = tex.x - tex.y * 0.5;\nvar a : vec2<f32> = select(\nvec2<f32>(ceil(tex.x), ceil(tex.y)),\nvec2<f32>(floor(tex.x), floor(tex.y)),\ntex.x + tex.y - floor(tex.x) - floor(tex.y) < 1.0\n);\nvar b : vec2<f32> = vec2<f32>(ceil(tex.x), floor(tex.y));\nvar c : vec2<f32> = vec2<f32>(floor(tex.x), ceil(tex.y));\nvar tex2 : vec3<f32> = vec3<f32>(tex.x, tex.y, 1.0 - tex.x - tex.y);\nvar a2 : vec3<f32> = vec3<f32>(a.x, a.y, 1.0 - a.x - a.y);\nvar b2 : vec3<f32> = vec3<f32>(b.x, b.y, 1.0 - b.x - b.y);\nvar c2 : vec3<f32> = vec3<f32>(c.x, c.y, 1.0 - c.x - c.y);\nvar alen : f32 = length(tex2 - a2);\nvar blen : f32 = length(tex2 - b2);\nvar clen : f32 = length(tex2 - c2);\nvar choice : vec2<f32> = select(\nselect(c, b, blen < clen),\nselect(c, a, alen < clen),\nalen < blen\n);\nchoice.x = choice.x + choice.y * 0.5;\nchoice.y = choice.y * 0.866025404;\nchoice = choice * shaderParams.scale / texSize;\nchoice = choice + vec2<f32>(0.5) / texSize;\nchoice = c3_clampToSrc(choice);\nvar output : FragmentOutput;\noutput.color = textureSampleGrad(textureFront, samplerFront, choice, dpdx(input.fragUV), dpdy(input.fragUV));\nreturn output;\n}",
-	blendsBackground: false,
-	usesDepth: false,
-	extendBoxHorizontal: 0,
-	extendBoxVertical: 0,
-	crossSampling: false,
-	mustPreDraw: false,
-	preservesOpaqueness: false,
-	animated: false,
-	parameters: [["scale",0,"float"]]
-};
 
 }
 
@@ -4161,6 +4133,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.LocalStorage.Cnds.OnItemGet,
 		C3.Plugins.LocalStorage.Cnds.CompareValue,
 		C3.Plugins.LocalStorage.Cnds.OnItemMissing,
+		C3.Plugins.LocalStorage.Cnds.OnError,
 		C3.Plugins.Text.Acts.TypewriterText,
 		C3.Plugins.Touch.Cnds.OnTapGestureObject,
 		C3.Plugins.Text.Cnds.IsRunningTypewriterText,
@@ -4177,9 +4150,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Cnds.CompareText,
 		C3.Plugins.LocalStorage.Acts.SetItem,
 		C3.Plugins.LocalStorage.Cnds.OnItemSet,
-		C3.Plugins.Sprite.Acts.SetVisible,
-		C3.Plugins.Text.Acts.SetVisible,
-		C3.Behaviors.Tween.Acts.TweenValue,
 		C3.Plugins.Sprite.Cnds.IsVisible,
 		C3.Behaviors.Tween.Cnds.IsPlaying,
 		C3.Behaviors.Tween.Acts.TweenTwoProperties,
@@ -4190,18 +4160,24 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Arr.Cnds.CompareX,
 		C3.Plugins.System.Cnds.TriggerOnce,
+		C3.Plugins.Sprite.Acts.SetVisible,
+		C3.Plugins.Sprite.Acts.SetDefaultColor,
+		C3.Plugins.System.Exps.rgb,
+		C3.Behaviors.Fade.Acts.StartFade,
+		C3.Plugins.System.Acts.SetFunctionReturnValue,
+		C3.Plugins.Touch.Cnds.IsTouchingObject,
 		C3.Plugins.Text.Cnds.IsVisible,
 		C3.Plugins.Sprite.Cnds.IsBoolInstanceVarSet,
 		C3.Plugins.Sprite.Acts.SetBoolInstanceVar,
+		C3.Behaviors.Tween.Acts.TweenValue,
+		C3.Plugins.Text.Acts.SetVisible,
 		C3.Plugins.Text.Acts.SetFontSize,
-		C3.Plugins.Sprite.Acts.SetEffectParam,
-		C3.Behaviors.Tween.Exps.Value,
-		C3.Plugins.System.Acts.SetLayerOpacity,
 		C3.Plugins.Text.Acts.ToggleBoolInstanceVar,
 		C3.Plugins.Text.Cnds.IsBoolInstanceVarSet,
-		C3.Plugins.Sprite.Acts.SetDefaultColor,
-		C3.Plugins.System.Exps.rgb,
-		C3.Behaviors.Fade.Acts.StartFade
+		C3.Plugins.System.Acts.SetLayerOpacity,
+		C3.Behaviors.Tween.Exps.Value,
+		C3.Plugins.Touch.Cnds.HasNthTouch,
+		C3.Plugins.LocalStorage.Acts.RemoveItem
 	];
 };
 self.C3_JsPropNameTable = [
@@ -4213,7 +4189,6 @@ self.C3_JsPropNameTable = [
 	{編號: 0},
 	{Sprite: 0},
 	{補間動畫: 0},
-	{Sprite2: 0},
 	{動物: 0},
 	{Array: 0},
 	{次數: 0},
@@ -4224,16 +4199,24 @@ self.C3_JsPropNameTable = [
 	{Sprite3: 0},
 	{兔子: 0},
 	{LocalStorage: 0},
+	{文件夾: 0},
+	{關閉圖示: 0},
+	{Sprite5: 0},
+	{文件夾5: 0},
+	{文件夾10: 0},
 	{模式: 0},
 	{句: 0},
 	{題目: 0},
 	{分: 0},
+	{正確次數: 0},
 	{數量: 0},
 	{記錄: 0},
 	{R: 0},
 	{G: 0},
 	{B: 0},
-	{數: 0}
+	{數: 0},
+	{分2: 0},
+	{正確次數2: 0}
 ];
 }
 
@@ -4343,6 +4326,9 @@ self.C3_ExpressionFuncs = [
 		() => "data",
 		() => "",
 		() => "1",
+		() => "2",
+		() => "3",
+		() => "4",
 		() => "系統將使用您的手機來超載遊戲\nYES",
 		() => 0,
 		() => "確定要超載仙旅其園嗎\nYES",
@@ -4367,25 +4353,24 @@ self.C3_ExpressionFuncs = [
 		() => "左",
 		() => "右",
 		() => "第二題",
-		() => "下列哪個是C532會有的反應？",
+		() => "下列哪個是他會有的反應？",
 		() => "遇到危險時第一時間保護身旁的人",
 		() => "得知被背叛後還能選擇原諒",
 		() => "第三題",
-		() => "下列哪個可能是C532會說的話？",
+		() => "下列哪個可能是他會說的話？",
 		() => "相信我我會守護你一輩子",
 		() => "讓我們重新開始吧",
 		() => "第四題",
-		() => "下列哪個是C532會相信的謊言？",
+		() => "下列哪個是他會相信的謊言？",
 		() => "我會跟你分手是因為我們不適合",
 		() => "我永遠只愛你一個人",
 		() => "左右右左",
 		() => "錯誤",
 		() => "第一題",
-		() => "轉",
-		() => 200,
-		() => 0.5,
-		() => "不透",
-		() => 100,
+		() => "下列哪個是他會做出的行為？",
+		() => "在另一伴不舒服的時候主動關心",
+		() => "從不關心另一伴人在哪裡",
+		() => "第一階段驗證通過\n開始第二階段驗證\n視窗已開啟\n請進行切換...",
 		() => "大",
 		() => 8,
 		() => 0.2,
@@ -4398,22 +4383,7 @@ self.C3_ExpressionFuncs = [
 			const n0 = p._GetNode(0);
 			return () => n0.ExpInstVar();
 		},
-		() => "小微 歡迎你回來\n若需要開啟機密文件\n輸入密碼",
-		() => 20,
-		() => "若每段感情都終將有結束的一天.....\n那不懂得珍惜的我....\n又有什麼資格接受新的開始....\n.....\n.....\n對不起.....\n.....\n.....\n.....\n.....\n.....\n5...\n4...\n3...\n2...\n1...\n正在導回LINE....",
-		() => 30,
-		() => 32,
-		() => "https://line.me/R/oaMessage/@927ytfgg/?%E6%A9%9F%E5%AF%86%E8%B3%87%E6%96%99",
-		() => "TT",
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpBehavior("轉");
-		},
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpBehavior("不透");
-		},
-		() => "小微 歡迎你回來\n若需要開啟機密文件\n請輸入密碼",
+		() => "小微 \n歡迎你回來",
 		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
@@ -4448,7 +4418,55 @@ self.C3_ExpressionFuncs = [
 			return () => f0(((v1.GetValue() / 5) * 4), ((v2.GetValue() / 5) * 4), ((v3.GetValue() / 5) * 4));
 		},
 		() => 8444904,
-		() => "開啟身分驗證..."
+		() => "開啟身分驗證...",
+		() => "驗證通過\n請選擇檔案開啟...",
+		() => 9851135,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			const n1 = p._GetNode(1);
+			return () => f0(n1.ExpInstVar());
+		},
+		() => "第SSBZV次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZQ次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 16777215,
+		() => "第SSBZM次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZN次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZO次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZP次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 6,
+		() => "第SSBZR次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZS次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZT次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 9,
+		() => "第SSBZU次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 11,
+		() => "第SSBZW次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 12,
+		() => "第SSBZX次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 13,
+		() => "第SSBZY次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 14,
+		() => "第SSBZZ次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 15,
+		() => "第SSCAA次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => 16,
+		() => "第SSCAB次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "正在開啟機密文件",
+		() => "若要開啟機密文件\n請輸入密碼",
+		() => "若要開啟機密文件\n輸入密碼",
+		() => 1.5,
+		() => "透",
+		() => 100,
+		() => 20,
+		() => "若每段感情都終將有結束的一天.....\n那不懂得珍惜的我....\n又有什麼資格接受新的開始....\n.....\n.....\n對不起.....\n.....\n.....\n.....\n.....\n.....\n5...\n4...\n3...\n2...\n1...\n正在導回LINE....",
+		() => 30,
+		() => 32,
+		() => "https://line.me/R/oaMessage/@927ytfgg/?%E6%A9%9F%E5%AF%86%E8%B3%87%E6%96%99",
+		() => "黑",
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpBehavior("透");
+		}
 ];
 
 
