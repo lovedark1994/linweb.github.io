@@ -4161,14 +4161,14 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Arr.Cnds.CompareX,
 		C3.Plugins.Sprite.Acts.SetVisible,
+		C3.Plugins.Sprite.Cnds.IsBoolInstanceVarSet,
+		C3.Plugins.Sprite.Acts.SetBoolInstanceVar,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
 		C3.Plugins.System.Exps.rgb,
 		C3.Behaviors.Fade.Acts.StartFade,
 		C3.Plugins.System.Acts.SetFunctionReturnValue,
 		C3.Plugins.Touch.Cnds.IsTouchingObject,
 		C3.Plugins.Text.Cnds.IsVisible,
-		C3.Plugins.Sprite.Cnds.IsBoolInstanceVarSet,
-		C3.Plugins.Sprite.Acts.SetBoolInstanceVar,
 		C3.Behaviors.Tween.Acts.TweenValue,
 		C3.Plugins.Text.Acts.SetVisible,
 		C3.Plugins.Text.Acts.SetFontSize,
@@ -4197,6 +4197,7 @@ self.C3_JsPropNameTable = [
 	{Text: 0},
 	{淡入淡出: 0},
 	{Sprite3: 0},
+	{按: 0},
 	{兔子: 0},
 	{LocalStorage: 0},
 	{文件夾: 0},
@@ -4204,6 +4205,7 @@ self.C3_JsPropNameTable = [
 	{Sprite5: 0},
 	{文件夾5: 0},
 	{文件夾10: 0},
+	{Text2: 0},
 	{模式: 0},
 	{句: 0},
 	{題目: 0},
@@ -4388,6 +4390,7 @@ self.C3_ExpressionFuncs = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
 		},
+		() => 0.3,
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
@@ -4395,7 +4398,6 @@ self.C3_ExpressionFuncs = [
 			const v3 = p._GetNode(3).GetVar();
 			return () => f0((v1.GetValue() / 5), (v2.GetValue() / 5), (v3.GetValue() / 5));
 		},
-		() => 0.3,
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			const v1 = p._GetNode(1).GetVar();
@@ -4426,8 +4428,8 @@ self.C3_ExpressionFuncs = [
 			const n1 = p._GetNode(1);
 			return () => f0(n1.ExpInstVar());
 		},
-		() => "第SSBZV次實驗，實驗失敗，個性太過完美，缺乏人性",
 		() => "第SSBZQ次實驗，實驗失敗，個性太過完美，缺乏人性",
+		() => "第SSBZV次實驗，實驗失敗，個性太過完美，缺乏人性",
 		() => 16777215,
 		() => "第SSBZM次實驗，實驗失敗，個性太過完美，缺乏人性",
 		() => "第SSBZN次實驗，實驗失敗，個性太過完美，缺乏人性",
@@ -4452,6 +4454,8 @@ self.C3_ExpressionFuncs = [
 		() => 16,
 		() => "第SSCAB次實驗，實驗失敗，個性太過完美，缺乏人性",
 		() => "正在開啟機密文件",
+		() => "12",
+		() => "21",
 		() => "若要開啟機密文件\n請輸入密碼",
 		() => "若要開啟機密文件\n輸入密碼",
 		() => 1.5,
