@@ -4148,6 +4148,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Text.Acts.AppendText,
 		C3.Plugins.Text.Cnds.CompareInstanceVar,
 		C3.Plugins.Text.Cnds.CompareText,
+		C3.Plugins.System.Cnds.TriggerOnce,
 		C3.Plugins.LocalStorage.Acts.SetItem,
 		C3.Plugins.LocalStorage.Cnds.OnItemSet,
 		C3.Plugins.Sprite.Cnds.IsVisible,
@@ -4159,7 +4160,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Arr.Acts.SetX,
 		C3.Plugins.System.Cnds.ForEach,
 		C3.Plugins.Arr.Cnds.CompareX,
-		C3.Plugins.System.Cnds.TriggerOnce,
 		C3.Plugins.Sprite.Acts.SetVisible,
 		C3.Plugins.Sprite.Acts.SetDefaultColor,
 		C3.Plugins.System.Exps.rgb,
@@ -4460,7 +4460,6 @@ self.C3_ExpressionFuncs = [
 		() => 20,
 		() => "若每段感情都終將有結束的一天.....\n那不懂得珍惜的我....\n又有什麼資格接受新的開始....\n.....\n.....\n對不起.....\n.....\n.....\n.....\n.....\n.....\n5...\n4...\n3...\n2...\n1...\n正在導回LINE....",
 		() => 30,
-		() => 32,
 		() => "https://line.me/R/oaMessage/@927ytfgg/?%E6%A9%9F%E5%AF%86%E8%B3%87%E6%96%99",
 		() => "黑",
 		p => {
